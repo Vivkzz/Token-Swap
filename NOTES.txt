@@ -1,0 +1,11 @@
+token-swap-clone/
+├── src/
+│   ├── Factory.sol
+│   ├── Pair.sol
+│   ├── Router.sol
+│   ├── TokenA.sol
+│   └── TokenB.sol
+├── script/
+│   └── Deploy.s.sol
+├── test/
+│   └── SwapTest.t.sol
