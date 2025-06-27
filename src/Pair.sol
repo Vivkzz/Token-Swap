@@ -27,7 +27,7 @@ contract Pair {
         reserve1 += amount1;
     }
 
-    function swap(address tokenIn, uint256 amountIn) external {
+    function swap(address tokenIn, uint256 amountIn, address to) external {
         require(tokenIn == token0 || tokenIn == token1, "Invalid Token");
 
         address tokenOut;
@@ -54,7 +54,7 @@ contract Pair {
         uint256 denominator = reserveIn + amountInAfterFees;
         uint256 amountOut = numerator / denominator;
 
-        IERC20(tokenOut).transfer(msg.sender, amountOut);
+        IERC20(tokenOut).transfer(to, amountOut);
 
         if (tokenIn == token0) {
             reserve0 += amountIn;
