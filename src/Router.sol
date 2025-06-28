@@ -36,6 +36,15 @@ contract Router {
         Pair(pair).addLiquidity(amountA, amountB, msg.sender);
     }
 
+    function removeLiquidity(address tokenA, address tokenB, uint256 liquidity) external {
+        address pair = factory.getPair(tokenA, tokenB);
+        address lptoken = Pair(pair).lpTokenAddress();
+        IERC20(lptoken).transferFrom(msg.sender, address(this), liquidity);
+
+        IERC20(lptoken).approve(pair, liquidity);
+        Pair(pair).removeLiquidity(liquidity, msg.sender);
+    }
+
     function swapExactToken(address tokenIn, address tokenOut, uint256 amountIn) external {
         address pair = factory.getPair(tokenIn, tokenOut);
         require(pair != address(0), "Pair doesnt exist");

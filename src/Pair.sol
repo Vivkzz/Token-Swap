@@ -31,6 +31,8 @@ contract Pair {
         reserve1 += amount1;
 
         uint256 liquidity;
+        // initial liquidity : sqrt(t1*t2) mean
+        // later liquidity : min((amount0 * totalsupply of lp / reserve0) ,(amount1 * totalsupply of lp / reserve1))
         if (lptoken.totalSupply() == 0) {
             liquidity = sqrt(amount0 * amount1);
         } else {
@@ -55,6 +57,22 @@ contract Pair {
         } else if (y != 0) {
             z = 1;
         }
+    }
+
+    function removeLiquidity(uint256 liquidity, address to) external {
+        uint256 totalSupply = lptoken.totalSupply();
+        uint256 amount0 = (liquidity * reserve0) / totalSupply;
+        uint256 amount1 = (liquidity * reserve1) / totalSupply;
+
+        require(amount0 > 0 && amount1 > 0, "Insufficient liquidity burned");
+
+        lptoken.burn(msg.sender, liquidity);
+
+        IERC20(token0).transfer(to, amount0);
+        IERC20(token1).transfer(to, amount1);
+
+        reserve0 -= amount0;
+        reserve1 -= amount1;
     }
 
     function swap(address tokenIn, uint256 amountIn, address to) external {
@@ -93,5 +111,9 @@ contract Pair {
             reserve1 += amountIn;
             reserve0 -= amountOut;
         }
+    }
+
+    function lpTokenAddress() external view returns (address) {
+        return address(lptoken);
     }
 }
