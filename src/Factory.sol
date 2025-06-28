@@ -28,7 +28,7 @@ contract Factory {
         }
 
         getPair[token0][token1] = pair;
-        getPair[token1][token0] = pair; // optional: not needed
+        getPair[token1][token0] = pair; // Easy to find in router
         allPair.push(pair);
         emit PairCreated(token0, token1, pair, allPair.length);
     }

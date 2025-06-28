@@ -3,12 +3,13 @@ pragma solidity 0.8;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Pair} from "./Pair.sol";
+import {Factory} from "./Factory.sol";
 
 contract Router {
-    address public immutable i_pair;
+    Factory public factory;
 
-    constructor(address _pair) {
-        i_pair = _pair;
+    constructor(address _factory) {
+        factory = Factory(factory);
     }
 
     function sortToken(address tokenA, address tokenB) public pure returns (address, address) {
@@ -20,18 +21,27 @@ contract Router {
     }
 
     function addLiquidity(address tokenA, address tokenB, uint256 amountA, uint256 amountB) external {
+        address pair = factory.getPair(tokenA, tokenB);
+
+        if (pair == address(0)) {
+            factory.createPair(tokenA, tokenB);
+            pair = factory.getPair(tokenA, tokenB);
+        }
         IERC20(tokenA).transferFrom(msg.sender, address(this), amountA);
         IERC20(tokenB).transferFrom(msg.sender, address(this), amountB);
 
-        IERC20(tokenA).approve(i_pair, amountA);
-        IERC20(tokenB).approve(i_pair, amountB);
+        IERC20(tokenA).approve(pair, amountA);
+        IERC20(tokenB).approve(pair, amountB);
 
-        Pair(i_pair).addLiquidity(amountA, amountB);
+        Pair(pair).addLiquidity(amountA, amountB, msg.sender);
     }
 
-    function swapExactToken(address tokenIn, uint256 amountIn) external {
+    function swapExactToken(address tokenIn, address tokenOut, uint256 amountIn) external {
+        address pair = factory.getPair(tokenIn, tokenOut);
+        require(pair != address(0), "Pair doesnt exist");
+
         IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
-        IERC20(tokenIn).approve(i_pair, amountIn);
-        Pair(i_pair).swap(tokenIn, amountIn, msg.sender);
+        IERC20(tokenIn).approve(pair, amountIn);
+        Pair(pair).swap(tokenIn, amountIn, msg.sender);
     }
 }
