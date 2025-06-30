@@ -3,7 +3,7 @@ import App from "./App";
 import ReactDOM from "react-dom/client";
 import SwapPage from "./pages/SwapPage";
 import LiquidityPage from "./pages/LiquidityPage";
-import "./App.css";
+import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Router>
