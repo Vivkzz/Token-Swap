@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
-pragma solidity 0.8;
+pragma solidity 0.8.20;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {LPToken} from "./LPToken.sol";
 
 contract Pair {
@@ -16,7 +17,10 @@ contract Pair {
         token0 = _token0;
         token1 = _token1;
 
-        lptoken = new LPToken("LPTOKEN", "LPTK", address(this));
+        // we can give general naming but it will create same lp token name for all tokens
+        string memory name = string(abi.encodePacked("LP-", ERC20(token0).symbol(), "-", ERC20(token1).symbol()));
+        string memory symbol = string(abi.encodePacked("LP-", ERC20(token0).symbol(), ERC20(token1).symbol()));
+        lptoken = new LPToken(name, symbol, address(this));
     }
 
     function getReserve() public view returns (uint256, uint256) {

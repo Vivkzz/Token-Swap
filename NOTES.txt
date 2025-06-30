@@ -9,3 +9,18 @@ token-swap-clone/
 │   └── Deploy.s.sol
 ├── test/
 │   └── SwapTest.t.sol
+
+
+
+src/
+  ├─ components/
+  │    ├─ WalletConnect.jsx
+  │    └─ Swap.jsx (next)
+  ├─ abi/
+  │    ├─ Factory.json
+  │    ├─ Pair.json
+  │    ├─ Router.json
+  │    └─ ERC20.json
+  ├─ App.jsx
+  ├─ main.jsx
+.env

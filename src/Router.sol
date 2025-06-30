@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
-pragma solidity 0.8;
+pragma solidity 0.8.20;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Pair} from "./Pair.sol";
@@ -9,7 +9,7 @@ contract Router {
     Factory public factory;
 
     constructor(address _factory) {
-        factory = Factory(factory);
+        factory = Factory(_factory);
     }
 
     function sortToken(address tokenA, address tokenB) public pure returns (address, address) {
