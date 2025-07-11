@@ -5,6 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const maxUint256 = BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+
 export function formatBalance(balance: bigint, decimals: number = 18): string {
   const divisor = BigInt(10 ** decimals);
   const quotient = balance / divisor;

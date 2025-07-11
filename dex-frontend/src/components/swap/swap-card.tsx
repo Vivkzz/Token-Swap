@@ -23,9 +23,7 @@ export function SwapCard() {
   const [tokenB, setTokenB] = useState<Token | null>(null);
   const [amountA, setAmountA] = useState('');
   const [amountB, setAmountB] = useState('');
-  
-  const { swapTokens, isPending, isConfirming, isConfirmed, error } = useSwap();
-  
+
   const tokenABalance = useTokenBalance(
     tokenA?.address || '',
     address || ''
@@ -36,25 +34,36 @@ export function SwapCard() {
     address || ''
   );
 
+  const {
+    approve,
+    swap,
+    isApprovalNeeded,
+    isPending,
+    isConfirming,
+    isConfirmed,
+    error,
+    reset,
+  } = useSwap(
+    tokenA?.address,
+    amountA,
+    tokenABalance.decimals
+  );
+
   const handleSwapTokens = () => {
     setTokenA(tokenB);
     setTokenB(tokenA);
     setAmountA(amountB);
     setAmountB(amountA);
+    reset(); // Reset transaction state
   };
 
-  // Calculate output amount when input changes
   const calculateOutputAmount = (inputAmount: string) => {
     if (!inputAmount || !tokenA || !tokenB) return '0';
-    
-    // Simple mock calculation - in real implementation, this would call the contract
-    // Using a mock exchange rate of 1:1.05 (slightly favorable)
     const input = parseFloat(inputAmount);
-    const output = input * 0.997 * 1.05; // 0.3% fee + 5% favorable rate
+    const output = input * 0.997 * 1.05; // Mock calculation
     return output.toFixed(6);
   };
 
-  // Update output amount when input amount changes
   const handleAmountAChange = (value: string) => {
     setAmountA(value);
     if (value && tokenA && tokenB) {
@@ -63,21 +72,26 @@ export function SwapCard() {
     } else {
       setAmountB('');
     }
+    reset(); // Reset transaction state on amount change
   };
 
-  const handleSwap = async () => {
-    if (!tokenA || !tokenB || !amountA || !isConnected) return;
-    
-    try {
-      await swapTokens(
-        tokenA.address,
-        tokenB.address,
-        amountA,
-        tokenABalance.decimals
-      );
-    } catch (error) {
-      console.error('Swap error:', error);
+  const handleAction = () => {
+    if (isApprovalNeeded) {
+      approve();
+    } else if (tokenB) {
+      swap(tokenB.address);
     }
+  };
+
+  const getButtonText = () => {
+    if (!isConnected) return 'Connect Wallet';
+    if (!tokenA || !tokenB) return 'Select Tokens';
+    if (!amountA) return 'Enter Amount';
+    if (isPending) return isApprovalNeeded ? 'Approving...' : 'Confirm in Wallet...';
+    if (isConfirming) return 'Swapping...';
+    if (isConfirmed) return 'Swap Complete!';
+    if (isApprovalNeeded) return `Approve ${tokenA.symbol}`;
+    return 'Swap';
   };
 
   return (
@@ -112,7 +126,7 @@ export function SwapCard() {
             </div>
             <TokenSelector
               token={tokenA}
-              onTokenSelect={setTokenA}
+              onTokenSelect={(t) => { setTokenA(t); reset(); }}
               otherToken={tokenB}
             />
           </div>
@@ -146,14 +160,13 @@ export function SwapCard() {
                 type="number"
                 placeholder="0.0"
                 value={amountB}
-                onChange={(e) => setAmountB(e.target.value)}
-                className="text-lg font-medium h-12 border-gray-200"
                 readOnly
+                className="text-lg font-medium h-12 border-gray-200 bg-gray-50"
               />
             </div>
             <TokenSelector
               token={tokenB}
-              onTokenSelect={setTokenB}
+              onTokenSelect={(t) => { setTokenB(t); reset(); }}
               otherToken={tokenA}
             />
           </div>
@@ -170,34 +183,23 @@ export function SwapCard() {
               <span className="text-gray-600">Fee</span>
               <span>0.3%</span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Minimum received</span>
-              <span>{(parseFloat(amountB) * 0.995).toFixed(4)} {tokenB.symbol}</span>
-            </div>
           </div>
         )}
 
-        {/* Swap Button */}
+        {/* Action Button */}
         <Button
-          onClick={handleSwap}
-          disabled={!tokenA || !tokenB || !amountA || !isConnected || isPending || isConfirming}
-          className="w-full h-12 bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 text-white font-medium"
+          onClick={handleAction}
+          disabled={!isConnected || !tokenA || !tokenB || !amountA || isPending || isConfirming}
+          className="w-full h-12 bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 text-white font-medium transition-all"
         >
-          {!isConnected
-            ? 'Connect Wallet'
-            : !tokenA || !tokenB
-            ? 'Select Tokens'
-            : !amountA
-            ? 'Enter Amount'
-            : isPending
-            ? 'Confirm in Wallet...'
-            : isConfirming
-            ? 'Swapping...'
-            : isConfirmed
-            ? 'Swap Complete!'
-            : 'Swap'}
+          {getButtonText()}
         </Button>
+
+        {error && (
+          <div className="text-red-500 text-sm text-center pt-2">
+            Error: {error.shortMessage || error.message}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
-}

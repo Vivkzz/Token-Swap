@@ -4,8 +4,15 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { Button } from '@/components/ui/button';
 import { ArrowLeftRight, Droplets, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export function Header() {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   return (
     <header className="border-b border-gray-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
@@ -37,7 +44,13 @@ export function Header() {
           </div>
           
           <div className="flex items-center space-x-4">
-            <ConnectButton />
+            {isMounted ? (
+              <ConnectButton />
+            ) : (
+              <Button variant="outline" disabled>
+                Connect Wallet
+              </Button>
+            )}
           </div>
         </div>
       </div>
