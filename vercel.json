@@ -1,0 +1,8 @@
+{
+  "builds": [
+    {
+      "src": "dex-frontend/next.config.ts",
+      "use": "@vercel/next"
+    }
+  ]
+}
