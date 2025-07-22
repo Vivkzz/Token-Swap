@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { ROUTER_ABI, ERC20_ABI, CONTRACT_ADDRESSES } from '@/lib/config';
-import { parseUnits, maxUint256 } from '@/lib/utils';
+import { parseUnits, maxUint256, toHex } from '@/lib/utils';
 
 export function useSwap(
   tokenInAddress?: string,
@@ -14,10 +14,10 @@ export function useSwap(
 
   // State for the allowance check
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
-    address: tokenInAddress as `0x${string}` | undefined,
+    address: toHex(tokenInAddress),
     abi: ERC20_ABI,
     functionName: 'allowance',
-    args: [address!, CONTRACT_ADDRESSES.ROUTER],
+    args: [address!, toHex(CONTRACT_ADDRESSES.ROUTER)!],
     query: {
       enabled: !!tokenInAddress && !!address && !!amountIn,
     },
@@ -53,10 +53,10 @@ export function useSwap(
   const approve = () => {
     if (!tokenInAddress) return;
     writeContract({
-      address: tokenInAddress as `0x${string}`,
+      address: toHex(tokenInAddress)!,
       abi: ERC20_ABI,
       functionName: 'approve',
-      args: [CONTRACT_ADDRESSES.ROUTER, maxUint256],
+      args: [toHex(CONTRACT_ADDRESSES.ROUTER)!, maxUint256],
     });
   };
 
@@ -64,10 +64,10 @@ export function useSwap(
     if (!tokenInAddress || !amountIn || !decimals || !tokenOutAddress) return;
     const amount = parseUnits(amountIn, decimals);
     writeContract({
-      address: CONTRACT_ADDRESSES.ROUTER as `0x${string}`,
+      address: toHex(CONTRACT_ADDRESSES.ROUTER)!,
       abi: ROUTER_ABI,
       functionName: 'swapExactToken',
-      args: [tokenInAddress, tokenOutAddress, amount],
+      args: [toHex(tokenInAddress)!, toHex(tokenOutAddress)!, amount],
     });
   };
 

@@ -197,9 +197,10 @@ export function SwapCard() {
 
         {error && (
           <div className="text-red-500 text-sm text-center pt-2">
-            Error: {error.shortMessage || error.message}
+            Error: {error.message || 'Transaction failed'}
           </div>
         )}
       </CardContent>
     </Card>
   );
+}
