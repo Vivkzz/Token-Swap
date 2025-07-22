@@ -2,7 +2,7 @@
 
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { ROUTER_ABI, CONTRACT_ADDRESSES } from '@/lib/config';
-import { parseUnits } from '@/lib/utils';
+import { parseUnits, toHex } from '@/lib/utils';
 
 export function useLiquidity() {
   const { data: hash, writeContract, isPending, error } = useWriteContract();
@@ -21,12 +21,12 @@ export function useLiquidity() {
     try {
       const amountABigInt = parseUnits(amountA, decimals);
       const amountBBigInt = parseUnits(amountB, decimals);
-      
+
       writeContract({
-        address: CONTRACT_ADDRESSES.ROUTER,
+        address: toHex(CONTRACT_ADDRESSES.ROUTER)!,
         abi: ROUTER_ABI,
         functionName: 'addLiquidity',
-        args: [tokenA, tokenB, amountABigInt, amountBBigInt],
+        args: [toHex(tokenA)!, toHex(tokenB)!, amountABigInt, amountBBigInt],
       });
     } catch (error) {
       console.error('Add liquidity error:', error);
@@ -42,12 +42,12 @@ export function useLiquidity() {
   ) => {
     try {
       const liquidityBigInt = parseUnits(liquidity, decimals);
-      
+
       writeContract({
-        address: CONTRACT_ADDRESSES.ROUTER,
+        address: toHex(CONTRACT_ADDRESSES.ROUTER)!,
         abi: ROUTER_ABI,
         functionName: 'removeLiquidity',
-        args: [tokenA, tokenB, liquidityBigInt],
+        args: [toHex(tokenA)!, toHex(tokenB)!, liquidityBigInt],
       });
     } catch (error) {
       console.error('Remove liquidity error:', error);

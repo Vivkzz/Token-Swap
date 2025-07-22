@@ -2,21 +2,21 @@
 
 import { useReadContract } from 'wagmi';
 import { ERC20_ABI } from '@/lib/config';
-import { formatBalance } from '@/lib/utils';
+import { formatBalance, toHex } from '@/lib/utils';
 
-export function useTokenBalance(tokenAddress: string, userAddress: string) {
+export function useTokenBalance(tokenAddress?: string, userAddress?: string) {
   const { data: balance, isError, isLoading } = useReadContract({
-    address: tokenAddress as `0x${string}`,
+    address: toHex(tokenAddress),
     abi: ERC20_ABI,
     functionName: 'balanceOf',
-    args: [userAddress],
+    args: [toHex(userAddress)!],
     query: {
       enabled: !!tokenAddress && !!userAddress,
     },
   });
 
   const { data: decimals } = useReadContract({
-    address: tokenAddress as `0x${string}`,
+    address: toHex(tokenAddress),
     abi: ERC20_ABI,
     functionName: 'decimals',
     query: {
@@ -25,7 +25,7 @@ export function useTokenBalance(tokenAddress: string, userAddress: string) {
   });
 
   const { data: symbol } = useReadContract({
-    address: tokenAddress as `0x${string}`,
+    address: toHex(tokenAddress),
     abi: ERC20_ABI,
     functionName: 'symbol',
     query: {
@@ -33,7 +33,7 @@ export function useTokenBalance(tokenAddress: string, userAddress: string) {
     },
   });
 
-  const formattedBalance = balance && decimals 
+  const formattedBalance = balance && decimals
     ? formatBalance(balance as bigint, decimals as number)
     : '0.00';
 
